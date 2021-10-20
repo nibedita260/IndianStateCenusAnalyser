@@ -14,34 +14,43 @@ namespace IndianStateCenusAnalyser
         public string fileHeaders = "State,Population,AreaInSqKm,DensityPerSqKm";
         public object LoadData(string csvFilePath,string fileHeaders)
         {
+            int numberOfRecord = 0;
             try
             {
-                if (!File.Exists(csvFilePath))
-                    throw new CenusAnalyserCustomException(CenusAnalyserCustomException.InvalidCenusdetails.FILE_NOT_FOUND, "File Not Found");
                 if (Path.GetExtension(csvFilePath) != ".csv")
+                {
                     throw new CenusAnalyserCustomException(CenusAnalyserCustomException.InvalidCenusdetails.INCORRECT_FILE_TYPE, "Incorrect File Type");
+                }
+                if (!File.Exists(csvFilePath))
+                {
+                    throw new CenusAnalyserCustomException(CenusAnalyserCustomException.InvalidCenusdetails.FILE_NOT_FOUND, "File Not Found");
+                }
                 StreamReader sr = new StreamReader(csvFilePath);
                 string line;
                 string[] rowData = new string[100];
-                int numberOfRecord = 0;
                 rowData = File.ReadAllLines(csvFilePath);
                 if (rowData[0] != fileHeaders)
+                {
                     throw new CenusAnalyserCustomException(CenusAnalyserCustomException.InvalidCenusdetails.INVALID_HEADERS, "Invalid Headers");
-
+                }
                 while ((line = sr.ReadLine()) != null)
                 {
                     numberOfRecord++;
-                    rowData = line.Split(',');
-                    if (rowData.Contains(","))
-                        throw new CenusAnalyserCustomException(CenusAnalyserCustomException.InvalidCenusdetails.INVALID_DELIMITER, "Invalid Delimiters In File");
-                     //iterate the csv data
+                    //iterate the csv data
                     foreach (string csvData in rowData)
                     {
-                        Console.Write("{0}" + "\t", csvData + "{0}" + "\t" + "\t", csvData);
+                        if (!csvData.Contains(","))
+                        {
+                            throw new CenusAnalyserCustomException(CenusAnalyserCustomException.InvalidCenusdetails.INVALID_DELIMITER, "Invalid Delimiters In File");
+                        }
+                        else
+                        {
+                            Console.WriteLine("{0}" + "\t", csvData.Replace(",", " "));
+                            Console.WriteLine("\t");
+                        }
                     }
                 }
                 Console.WriteLine("total number of records:" + numberOfRecord);
-                return numberOfRecord;
             }
             catch (CenusAnalyserCustomException e)
             {
@@ -51,7 +60,7 @@ namespace IndianStateCenusAnalyser
             {
                 Console.WriteLine(e.Message);
             }
-            throw new CenusAnalyserCustomException(CenusAnalyserCustomException.InvalidCenusdetails.FILE_NOT_FOUND, "File Not Found");
+            return numberOfRecord;
         }
     }
 }
